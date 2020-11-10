@@ -1,5 +1,10 @@
+#![feature(unsize)]
+#![feature(coerce_unsized)]
+
 use std::alloc::{dealloc, Layout};
 use std::ops::{Deref, DerefMut};
+use std::marker::Unsize;
+use std::ops::CoerceUnsized;
 
 pub struct DyBox<T>
     where T: ?Sized{
@@ -40,6 +45,12 @@ impl<T> DerefMut for DyBox<T>
         unsafe{self.data.as_mut().unwrap()}
     }
 }
+
+impl<T, U> CoerceUnsized<DyBox<U>> for DyBox<T>
+    where T: Unsize<U>,
+          U: ?Sized{
+
+          }
 
 #[no_mangle]
 unsafe extern fn drop_ptr(ptr: *mut u8, layout: Layout){
