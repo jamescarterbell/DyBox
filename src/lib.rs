@@ -1,7 +1,8 @@
 use std::alloc::{dealloc, Layout};
 use std::ops::{Deref, DerefMut};
 
-pub struct DyBox<T>{
+pub struct DyBox<T>
+    where T: ?Sized{
     data: *mut T,
     drop_fn: unsafe extern fn(*mut u8, Layout),
     layout: std::alloc::Layout,
@@ -17,13 +18,15 @@ impl<T> DyBox<T>{
     }
 }
 
-impl<T> Drop for DyBox<T>{
-    fn drop(&mut self){;
+impl<T> Drop for DyBox<T>
+    where T: ?Sized{
+    fn drop(&mut self){
         unsafe{drop_ptr(self.data as *mut u8, self.layout)}
     }
 }
 
-impl<T> Deref for DyBox<T>{
+impl<T> Deref for DyBox<T>
+    where T: ?Sized{
     type Target = T;
 
     fn deref(&self) -> &Self::Target{
@@ -31,7 +34,8 @@ impl<T> Deref for DyBox<T>{
     }
 }
 
-impl<T> DerefMut for DyBox<T>{
+impl<T> DerefMut for DyBox<T>
+    where T: ?Sized{
     fn deref_mut(&mut self) -> &mut Self::Target{
         unsafe{self.data.as_mut().unwrap()}
     }
