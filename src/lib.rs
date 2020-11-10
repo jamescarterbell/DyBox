@@ -26,7 +26,7 @@ impl<T> DyBox<T>{
 impl<T> Drop for DyBox<T>
     where T: ?Sized{
     fn drop(&mut self){
-        unsafe{drop_ptr(self.data as *mut u8, self.layout)}
+        unsafe{(self.drop_fn)(self.data as *mut u8, self.layout)}
     }
 }
 
@@ -55,4 +55,26 @@ impl<T, U> CoerceUnsized<DyBox<U>> for DyBox<T>
 #[no_mangle]
 unsafe extern fn drop_ptr(ptr: *mut u8, layout: Layout){
     dealloc(ptr, layout)
+}
+
+#[cfg(test)]
+mod tests{
+
+    use super::DyBox;
+
+    #[test]
+    fn make_free(){
+        let thingy = DyBox::new(5);
+        drop(thingy);
+    }
+
+    trait Dab{}
+    impl Dab for u32{}
+
+    #[test]
+    fn coerce_free(){
+        let thingy = DyBox::new(5 as u32);
+        let thingy = thingy as DyBox<dyn Dab>;
+        drop(thingy);
+    }
 }
