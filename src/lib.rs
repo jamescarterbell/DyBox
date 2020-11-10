@@ -15,10 +15,12 @@ pub struct DyBox<T>
 
 impl<T> DyBox<T>{
     pub fn new(data: T) -> Self{
+        let data = unsafe{Box::into_raw(Box::new(data))};
+        let layout = Layout::for_value(&data);
         Self{
-            data: unsafe{Box::into_raw(Box::new(data))},
+            data,
             drop_fn: drop_ptr,
-            layout: Layout::new::<T>(),
+            layout,
         }
     }
 }
