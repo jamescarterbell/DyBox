@@ -9,7 +9,7 @@ pub struct DyBox<T>
 }
 
 impl<T> DyBox<T>{
-    fn new(data: T) -> Self{
+    pub fn new(data: T) -> Self{
         Self{
             data: unsafe{Box::into_raw(Box::new(data))},
             drop_fn: drop_ptr,
